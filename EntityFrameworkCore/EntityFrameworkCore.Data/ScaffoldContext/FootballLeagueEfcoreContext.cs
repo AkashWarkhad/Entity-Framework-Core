@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using EntityFrameworkCore.Data.ScaffoldModels;
+﻿using EntityFrameworkCore.Data.ScaffoldModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntityFrameworkCore.Data.ScaffoldContext;
