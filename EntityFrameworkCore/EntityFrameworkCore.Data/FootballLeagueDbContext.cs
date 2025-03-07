@@ -25,7 +25,7 @@ namespace EntityFrameworkCore.Data
             //optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB; Initial Catalog=FootballLeague_EfCore; Encrypt= False");
 
             // Configurtion for Sql Lite
-            optionsBuilder.UseSqlite($"Data Source=FootballLeague_EfCore.db")
+            optionsBuilder.UseSqlite($"Data Source={DbPath}")
                 .LogTo(Console.WriteLine, LogLevel.Information)
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors();
