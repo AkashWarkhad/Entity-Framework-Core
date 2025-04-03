@@ -15,7 +15,7 @@ await GetTeamById();
 await GetTeamByFilter();
 
 // Get the Matching data using delimeter %
-await GertAllTeamsQuerySyntax();
+await GetAllTeamsQuerySyntax();
 
 // Aggregate Methods
 await AggrigationMethods();
@@ -120,7 +120,7 @@ async Task GetTeamByFilter()
     PrintData(likeData, "Like Function");
 }
 
-async Task GertAllTeamsQuerySyntax()
+async Task GetAllTeamsQuerySyntax()
 {
     var input = "CSK";
 
