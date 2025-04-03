@@ -1,5 +1,7 @@
 ﻿using EntityFrameworkCore.Data;
+using EntityFrameworkCore.Domain;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 using var context = new FootballLeagueDbContext();
 
@@ -12,16 +14,127 @@ await GetTeamById();
 // Get data By Filter
 await GetTeamByFilter();
 
+// Get the Matching data using delimeter %
+await GertAllTeamsQuerySyntax();
+
+// Aggregate Methods
+await AggrigationMethods();
+
+// Grouping & Aggrigation together
+await GroupingMethod();
+
+// OrderBy Method
+await OrderByMethod();
+
+
+async Task OrderByMethod()
+{
+    // Assending Order
+    var orderItemsInAscending = await context.Teams
+        .OrderBy(x=> x.Name)
+        .ToListAsync();
+    PrintData(orderItemsInAscending, "Assending Order");
+
+    // Descending Order
+    var orderItemsInDescending = await context.Teams
+        .OrderByDescending(x => x.Name)
+        .ToListAsync();
+    PrintData(orderItemsInDescending, "Descending Order");
+}
+
+async Task GroupingMethod()
+{
+    //SELECT YEAR(CreatedAt) AS CreatedAtYear, TeamId, Name
+    //FROM Teams
+    //WHERE Name LIKE '%CSK%'
+    //AND TeamId >= 2
+    //GROUP BY CreatedAtYear;
+
+
+    var groupedTeam = await context.Teams
+    .Where(x => x.Name.Contains("CSK") && x.TeamId >= 2) // Filter before grouping
+    .GroupBy(x => x.CreatedAt.Year)
+    .ToListAsync(); // Grouping is now safe
+
+    foreach (var group in groupedTeam)
+    {
+        var year = group.Key;
+        Console.WriteLine($"###### Year: {year}"); // Print the year
+
+        foreach (var team in group) // Iterate over group
+        {
+            Console.WriteLine($"- {team.Name} (ID: {team.TeamId})");
+        }
+    }
+}
+
+async Task AggrigationMethods()
+{
+    // Aggregate Mthods
+
+    // COUNT
+    var noOfTeamMembers = await context.Teams.CountAsync();
+    PrintNumbers(noOfTeamMembers, "Total number of team members: ");
+
+    var NoOfTeamMemversWithConditions = await context.Teams.CountAsync(x=> x.TeamId >= 3);
+    PrintNumbers(NoOfTeamMemversWithConditions, "Total number of team members with Conditions: ");
+
+    // MAX
+    var maxTeam = await context.Teams.MaxAsync(x=> x.TeamId);
+    PrintNumbers(maxTeam, "Max: ");
+
+    // MIN
+    var minTeam = await context.Teams.MinAsync(x => x.TeamId);
+    PrintNumbers(minTeam, "MIN: ");
+
+    // AVG
+    var avgTeam = await context.Teams.AverageAsync(x => x.TeamId);
+    PrintNumbers((int)avgTeam, "AVG: ");
+
+    // SUM
+    var sumTeam = await context.Teams.SumAsync(x => x.TeamId);
+    PrintNumbers(sumTeam, "SUM: ");
+
+}
+
+void PrintNumbers(int count, string msg)
+{
+    Console.WriteLine("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + msg + count);
+}
 
 async Task GetTeamByFilter()
 {
-    Console.Write("---------------------------------- Enter a Team name :");
+    Console.Write("---------------------------------- Enter a Team name ---------------------------------- :");
+    
     var readData = Console.ReadLine();
 
     var data = await context.Teams.Where(x => x.Name == readData).ToListAsync();
+    PrintData(data, "Exact match");
+
+    // To search matching data in the table using Contains
+    var patialMatches = await context.Teams.Where(x=> x.Name.Contains(readData)).ToListAsync();
+    PrintData(patialMatches, "Contains Function");
+
+    // To Search matching data in the table using EF core Like function
+    var likeData = await context.Teams.Where(x=> EF.Functions.Like(x.Name, $"%{readData}%")).ToListAsync();
+    PrintData(likeData, "Like Function");
+}
+
+async Task GertAllTeamsQuerySyntax()
+{
+    var input = "CSK";
+
+    var teams = await (from team in context.Teams
+                where EF.Functions.Like(team.Name, $"%{input}%")
+                select team).ToListAsync();
+    PrintData(teams, "Select Query using %");
+}
+
+void PrintData(List<Team> data, string who = "")
+{
     foreach (var team in data)
     {
-        Console.WriteLine($"{team.Name}, {team.CreatedAt}, {team.TeamId}");
+        Console.WriteLine($"{who} ################# {team.Name}, {team.CreatedAt}, {team.TeamId} #################");
     }
     Console.Write("---------------------------------- Data ^:");
 }

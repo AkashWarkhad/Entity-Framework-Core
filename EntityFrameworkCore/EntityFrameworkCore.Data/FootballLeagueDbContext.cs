@@ -50,7 +50,19 @@ namespace EntityFrameworkCore.Data
                 {
                     TeamId = 3,
                     Name = "KKR Team",
-                    CreatedAt = new DateTime(2025, 02, 14)
+                    CreatedAt = new DateTime(2025, 05, 14)
+                },
+                new Team
+                {
+                    TeamId = 4,
+                    Name = "CSK",
+                    CreatedAt = new DateTime(2025, 04, 12)
+                },
+                new Team
+                {
+                    TeamId = 5,
+                    Name = "CSK Team B",
+                    CreatedAt = new DateTime(2025, 03, 12)
                 });
 
             modelBuilder.Entity<Coach>().HasData(new Coach 
