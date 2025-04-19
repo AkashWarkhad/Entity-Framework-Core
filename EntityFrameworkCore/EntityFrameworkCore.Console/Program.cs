@@ -1,7 +1,10 @@
 ﻿using EntityFrameworkCore.Data;
 using EntityFrameworkCore.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+
+// Note Just press INSERT Key that sit  /////////////////////////////////////////////
 
 using var context = new FootballLeagueDbContext();
 
@@ -26,6 +29,77 @@ await GroupingMethod();
 // OrderBy Method
 await OrderByMethod();
 
+// Skip the pageNo & take a records.
+await SkipAndTake();
+
+// Retrieve the required projection from the data
+await GetTeamsProjection();
+
+// No Tracking vs tracking Query
+await GetDataWithNoTracking();
+
+// IQueryable VS ListType
+await GetDataWithQueryableAndInMemoryListType();
+
+async Task GetDataWithQueryableAndInMemoryListType()
+{
+    // Queryable object : here it just SQL Query generation. No execusion
+    IQueryable<Team> teamsQueryable = context.Teams.AsQueryable();
+
+    // Add more filters on queryable to addon the SQL Query.
+    teamsQueryable = teamsQueryable.Where(x => x.Name.Contains("CSK"));
+
+    // Execute the genearted SQL Query on the DB by list type
+    var finalData = await teamsQueryable.ToListAsync();
+
+    PrintData(finalData, "Print as a Queryable data :");
+}
+
+async Task GetDataWithNoTracking()
+{
+    var stopwatch = new Stopwatch();
+    stopwatch.Start();
+    var data = await context.Teams
+        .AsNoTracking()
+        .ToListAsync();
+   
+    Console.WriteLine($"{data.Count} Data Retrieved in: {stopwatch.ElapsedMilliseconds} milliSecond with No tracking");
+
+    var stopwatch2 = new Stopwatch();
+    stopwatch2.Start();
+    var data2 = await context.Teams
+        .AsTracking()
+        .ToListAsync();
+
+    Console.WriteLine($"{data2.Count} Data Retrieved in: {stopwatch2.ElapsedMilliseconds} milliSecond with tracking");
+
+    Console.WriteLine($"Time Difference between 2 tracking was {stopwatch2.ElapsedMilliseconds - stopwatch.ElapsedMilliseconds}");
+}
+
+async Task GetTeamsProjection()
+{
+    var data = await context.Teams
+        .Select(x => new TeamInfo()
+        {
+            Name = x.Name,
+            TeamId = x.TeamId
+        }).ToListAsync();
+
+    foreach(var team in data)
+    {
+        Console.WriteLine($"Projection Data : {team.Name} & {team.TeamId}");
+    }
+}
+
+async Task SkipAndTake()
+{
+    var pageNo = 0;
+    var recordCount = 3;
+    var next = true;
+
+    var data = await context.Teams.Skip(pageNo * recordCount).Take(recordCount).ToListAsync();
+    PrintData(data, "Skip & Take");
+}
 
 async Task OrderByMethod()
 {
