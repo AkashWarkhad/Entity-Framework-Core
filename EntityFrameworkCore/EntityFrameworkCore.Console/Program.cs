@@ -2,14 +2,13 @@
 using EntityFrameworkCore.Domain;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // Note Just press INSERT Key that sit  /////////////////////////////////////////////
 
 using var context = new FootballLeagueDbContext();
 
 // Fetch All Teams data from the DB
-await GetAllTeams();
+await GetAllTeamsAndCoaches();
 
 // Fetch Teams data from the DB By Id
 await GetTeamById();
@@ -40,6 +39,43 @@ await GetDataWithNoTracking();
 
 // IQueryable VS ListType
 await GetDataWithQueryableAndInMemoryListType();
+
+// Add the Coaches in the table
+await AddData();
+
+async Task AddData()
+{
+    Console.WriteLine("########################   You want insert a new coaches? Y/N");
+    var yes = Console.ReadLine();
+    var newCoaches = new List<Coach>();
+
+    while (yes.ToString().Equals("y", StringComparison.OrdinalIgnoreCase))
+    {
+        Console.WriteLine("######################## Enter a coache name :");
+        var insertedData = Console.ReadLine();
+
+        var newCoach = new Coach
+        {
+            Name = insertedData,
+            CreatedAt = DateTime.Now
+        };
+
+        newCoaches.Add(newCoach);
+
+        Console.WriteLine("Do you want insert a new coache again? Y/N");
+        yes = Console.ReadLine();
+
+        if (yes.ToString().Equals("n", StringComparison.OrdinalIgnoreCase))
+        {
+            await context.AddRangeAsync(newCoaches);
+            await context.SaveChangesAsync();
+            Console.WriteLine("############## Data inserted successfully! ########################");
+        }
+    }
+
+    // Add the new Coaches in the table
+    PrintCoachesData(newCoaches);
+}
 
 async Task GetDataWithQueryableAndInMemoryListType()
 {
@@ -206,9 +242,20 @@ async Task GetAllTeamsQuerySyntax()
 
 void PrintData(List<Team> data, string who = "")
 {
+    Console.WriteLine(Environment.NewLine);
     foreach (var team in data)
     {
         Console.WriteLine($"{who} ################# {team.Name}, {team.CreatedAt}, {team.TeamId} #################");
+    }
+    Console.Write("---------------------------------- Data ^:");
+}
+
+void PrintCoachesData(List<Coach> data, string who = "")
+{
+    Console.WriteLine(Environment.NewLine);
+    foreach (var coach in data)
+    {
+        Console.WriteLine($"{who} ################# {coach.Name}, {coach.CreatedAt}, {coach.Id} #################");
     }
     Console.Write("---------------------------------- Data ^:");
 }
@@ -232,16 +279,15 @@ async Task GetTeamById()
     var t10 = await context.Teams.FindAsync(1);
 }
 
-async Task GetAllTeams()
+async Task GetAllTeamsAndCoaches()
 {
     try
     {
         var teams = await context.Teams.ToListAsync();
+        PrintData(teams, "All Data :");
 
-        foreach (var team in teams)
-        {
-            Console.WriteLine(team.Name);
-        }
+        var coaches = await context.Coaches.ToListAsync();
+        PrintCoachesData(coaches, "All Coaches Data :");
     }
     catch (Exception ex)
     {
