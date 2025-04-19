@@ -43,6 +43,80 @@ await GetDataWithQueryableAndInMemoryListType();
 // Add the Coaches in the table
 await AddData();
 
+// Update the existing record
+await UpdateData();
+
+// Delete the record
+await DeleteData();
+
+async Task DeleteData()
+{
+    PrintCoachesData(await context.Coaches.ToListAsync());
+
+    Console.WriteLine("Do you want to Delete the above inserted data?");
+    var yes = Console.ReadLine();
+
+    if (yes.ToString().Equals("y", StringComparison.OrdinalIgnoreCase))
+    {
+        Console.WriteLine("################## Insert a Coach Id to be Delete : ");
+        int id = Convert.ToInt32(Console.ReadLine());
+
+        var coach = await context.Coaches
+            // .AsNoTracking()  <- if its marked a no tracker then we cannot save the changes in the DB
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (coach != null)
+        {
+            Console.WriteLine($"################## Coach {coach.Id}.{coach.Name} is deleted,");
+            
+            // Here we have to change the Entry State to make in modified entry state
+            //context.Entry(coach).State = EntityState.Deleted;
+            context.Coaches.Remove(coach);
+            await context.SaveChangesAsync();
+        }
+        else
+        {
+            Console.WriteLine("Invalid data, Data not found!!");
+        }
+    }
+}
+
+async Task UpdateData()
+{
+    PrintCoachesData(await context.Coaches.ToListAsync());
+
+    Console.WriteLine("Do you want to update the above inserted data?");
+    var yes = Console.ReadLine();
+
+    if (yes.ToString().Equals("y", StringComparison.OrdinalIgnoreCase))
+    {
+        Console.WriteLine("################## Insert a Coach Id to update : ");
+        int id = Convert.ToInt32(Console.ReadLine());
+
+        var coach = await context.Coaches
+           // .AsNoTracking()  <- if its marked a no tracker then we cannot save the changes in the DB
+            .FirstOrDefaultAsync(x=> x.Id == id);
+
+        if (coach != null)
+        {
+            Console.WriteLine("################## Enter new Coach name : ");
+            var data = Console.ReadLine();
+            // Update data
+            coach.Name = data;
+            coach.CreatedAt = DateTime.Now;
+
+            // Here we have to change the Entry State to make in modified entry state
+            //context.Entry(coach).State = EntityState.Modified;
+            context.SaveChangesAsync();
+        }
+        else
+        {
+            Console.WriteLine("Invalid data, Data not found!!");
+        }
+    }
+
+}
+
 async Task AddData()
 {
     Console.WriteLine("########################   You want insert a new coaches? Y/N");
