@@ -3,6 +3,7 @@ using System;
 using EntityFrameworkCore.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkCore.Data.Migrations
 {
     [DbContext(typeof(FootballLeagueDbContext))]
-    partial class FootballLeagueDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250503113122_Add-OneToMany-Relation")]
+    partial class AddOneToManyRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -42,15 +45,6 @@ namespace EntityFrameworkCore.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Coaches");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 4,
-                            CreatedAt = new DateTime(2025, 2, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "MK Sir"
-                        });
                 });
 
             modelBuilder.Entity("EntityFrameworkCore.Domain.Models.League", b =>
@@ -77,29 +71,6 @@ namespace EntityFrameworkCore.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Leagues");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Jamica Premiere League"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Swami Nath Premiere"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Indian Premiere League"
-                        });
                 });
 
             modelBuilder.Entity("EntityFrameworkCore.Domain.Models.Match", b =>
@@ -169,52 +140,6 @@ namespace EntityFrameworkCore.Data.Migrations
                     b.HasIndex("LeagueId");
 
                     b.ToTable("Teams");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CoachId = 0,
-                            CreatedAt = new DateTime(2025, 2, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LeagueId = 1,
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "CSK Team"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CoachId = 0,
-                            CreatedAt = new DateTime(2025, 2, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LeagueId = 2,
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "MI Team"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CoachId = 0,
-                            CreatedAt = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LeagueId = 3,
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "KKR Team"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CoachId = 0,
-                            CreatedAt = new DateTime(2025, 4, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "CSK"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CoachId = 0,
-                            CreatedAt = new DateTime(2025, 3, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LeagueId = 2,
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "CSK Team B"
-                        });
                 });
 
             modelBuilder.Entity("EntityFrameworkCore.Domain.Models.Team", b =>

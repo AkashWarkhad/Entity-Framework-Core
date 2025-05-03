@@ -13,19 +13,22 @@ namespace EntityFrameworkCore.Data.Configuration
                 {
                     Id = 1,
                     Name = "CSK Team",
-                    CreatedAt = new DateTime(2025, 02, 12)
+                    CreatedAt = new DateTime(2025, 02, 12),
+                    LeagueId = 1,
                 },
                 new Team
                 {
                     Id = 2,
                     Name = "MI Team",
-                    CreatedAt = new DateTime(2025, 02, 13)
+                    CreatedAt = new DateTime(2025, 02, 13),
+                    LeagueId = 2
                 },
                 new Team
                 {
                     Id = 3,
                     Name = "KKR Team",
-                    CreatedAt = new DateTime(2025, 05, 14)
+                    CreatedAt = new DateTime(2025, 05, 14),
+                    LeagueId = 3
                 },
                 new Team
                 {
@@ -37,7 +40,8 @@ namespace EntityFrameworkCore.Data.Configuration
                 {
                     Id = 5,
                     Name = "CSK Team B",
-                    CreatedAt = new DateTime(2025, 03, 12)
+                    CreatedAt = new DateTime(2025, 03, 12),
+                    LeagueId = 2
                 });
 
         }
