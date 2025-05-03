@@ -1,6 +1,7 @@
 ﻿using EntityFrameworkCore.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace EntityFrameworkCore.Data
 {
@@ -16,6 +17,11 @@ namespace EntityFrameworkCore.Data
         public DbSet<Team> Teams { get; set; }
 
         public DbSet<Coach> Coaches { get; set; }
+
+        public DbSet<League> Leagues { get; set; }
+
+        public DbSet<Match> Matches { get; set; }
+
 
         public string DbPath { get; private set; }
 
@@ -34,44 +40,14 @@ namespace EntityFrameworkCore.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Team>().HasData(
-                new Team
-                {
-                    TeamId = 1,
-                    Name = "CSK Team",
-                    CreatedAt = new DateTime(2025, 02, 12)
-                },
-                new Team
-                {
-                    TeamId = 2,
-                    Name = "MI Team",
-                    CreatedAt = new DateTime(2025, 02, 13)
-                },
-                new Team
-                {
-                    TeamId = 3,
-                    Name = "KKR Team",
-                    CreatedAt = new DateTime(2025, 05, 14)
-                },
-                new Team
-                {
-                    TeamId = 4,
-                    Name = "CSK",
-                    CreatedAt = new DateTime(2025, 04, 12)
-                },
-                new Team
-                {
-                    TeamId = 5,
-                    Name = "CSK Team B",
-                    CreatedAt = new DateTime(2025, 03, 12)
-                });
+            //modelBuilder.ApplyConfiguration(new TeamConfigurationHelper());
 
-            modelBuilder.Entity<Coach>().HasData(new Coach 
-            {
-                Id = 4,
-                Name = "MK Sir",
-                CreatedAt = new DateTime(2025, 02, 13)
-            });
+            //modelBuilder.ApplyConfiguration(new CoachConfigurationHelper());
+
+            //modelBuilder.ApplyConfiguration(new LeagueConfigurationHelper());
+
+            // OR we can configure it globally like below instade of doing for each.
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }
