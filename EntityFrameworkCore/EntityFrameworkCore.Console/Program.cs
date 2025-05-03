@@ -1,6 +1,7 @@
 ﻿using EntityFrameworkCore.Data.Context;
 using EntityFrameworkCore.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 
 // Note Just press INSERT Key that sit  /////////////////////////////////////////////
@@ -54,7 +55,7 @@ async Task DeleteData()
     PrintCoachesData(await context.Coaches.ToListAsync());
 
     Console.WriteLine("Do you want to Delete the above inserted data?");
-    var yes = Console.ReadLine();
+    var yes = Console.ReadLine()?? "N" ;
 
     if (yes.ToString().Equals("y", StringComparison.OrdinalIgnoreCase))
     {
@@ -107,7 +108,7 @@ async Task UpdateData()
 
             // Here we have to change the Entry State to make in modified entry state
             //context.Entry(coach).State = EntityState.Modified;
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
         else
         {
@@ -205,7 +206,6 @@ async Task SkipAndTake()
 {
     var pageNo = 0;
     var recordCount = 3;
-    var next = true;
 
     var data = await context.Teams.Skip(pageNo * recordCount).Take(recordCount).ToListAsync();
     PrintData(data, "Skip & Take");
@@ -290,13 +290,13 @@ async Task GetTeamByFilter()
 {
     Console.Write("---------------------------------- Enter a Team name ---------------------------------- :");
     
-    var readData = Console.ReadLine();
+    var readData = Console.ReadLine()?? "";
 
     var data = await context.Teams.Where(x => x.Name == readData).ToListAsync();
     PrintData(data, "Exact match");
 
     // To search matching data in the table using Contains
-    var patialMatches = await context.Teams.Where(x=> x.Name.Contains(readData)).ToListAsync();
+    var patialMatches = await context.Teams.Where(x=>x.Name != null && x.Name.Contains(readData)).ToListAsync();
     PrintData(patialMatches, "Contains Function");
 
     // To Search matching data in the table using EF core Like function
