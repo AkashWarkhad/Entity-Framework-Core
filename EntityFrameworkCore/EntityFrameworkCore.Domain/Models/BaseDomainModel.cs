@@ -1,4 +1,4 @@
-﻿namespace EntityFrameworkCore.Domain
+﻿namespace EntityFrameworkCore.Domain.Models
 {
     // This is base class & cannot be instantiated Its just able to extend
     public abstract class BaseDomainModel

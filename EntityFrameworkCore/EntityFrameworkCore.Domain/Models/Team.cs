@@ -1,4 +1,4 @@
-﻿namespace EntityFrameworkCore.Domain
+﻿namespace EntityFrameworkCore.Domain.Models
 {
     public class Team : BaseDomainModel
     {

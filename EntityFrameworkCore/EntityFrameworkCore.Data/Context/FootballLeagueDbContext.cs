@@ -1,9 +1,9 @@
-﻿using EntityFrameworkCore.Domain;
+﻿using EntityFrameworkCore.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 
-namespace EntityFrameworkCore.Data
+namespace EntityFrameworkCore.Data.Context
 {
     public class FootballLeagueDbContext : DbContext
     {
@@ -35,7 +35,7 @@ namespace EntityFrameworkCore.Data
                 .LogTo(Console.WriteLine, LogLevel.Information)
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors();
-               // .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); <- DO not track the query just read it and that sit. Its Quicker
+            // .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); <- DO not track the query just read it and that sit. Its Quicker
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

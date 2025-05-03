@@ -1,6 +1,4 @@
-﻿using EntityFrameworkCore.Domain;
-
-namespace EntityFrameworkCore.Data
+﻿namespace EntityFrameworkCore.Domain.Models
 {
     public class League : BaseDomainModel
     {

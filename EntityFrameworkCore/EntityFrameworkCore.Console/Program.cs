@@ -1,8 +1,7 @@
-﻿using EntityFrameworkCore.Data;
-using EntityFrameworkCore.Domain;
+﻿using EntityFrameworkCore.Data.Context;
+using EntityFrameworkCore.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // Note Just press INSERT Key that sit  /////////////////////////////////////////////
 
