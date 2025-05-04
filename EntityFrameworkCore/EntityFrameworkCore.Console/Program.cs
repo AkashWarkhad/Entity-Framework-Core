@@ -1,12 +1,22 @@
 ﻿using EntityFrameworkCore.Data.Context;
 using EntityFrameworkCore.Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 
-// Note Just press INSERT Key that sit  /////////////////////////////////////////////
+// Note Just press INSERT Key when new data overrides existing ////////////////////////////
 
 using var context = new FootballLeagueDbContext();
+
+//await AddRelatedData(context);
+
+// Eager Loading to load the data
+await EagerLoading();
+
+// Explicitly Loading
+await ExplicitlyLoading();
+
+// Lazy Loading
+await LazyLoading();
 
 // Fetch All Teams data from the DB
 await GetAllData();
@@ -50,12 +60,71 @@ await UpdateData();
 // Delete the record
 await DeleteData();
 
+async Task EagerLoading()
+{
+    // When Needed then only Eager Load the data from the table
+    var leagues = await context.Leagues
+        .Include(x=> x.Teams)           // Load Team
+        .ThenInclude(x=> x.Coach)       // Load Coach
+        .ToListAsync();
+
+    Console.WriteLine("################## Eager Loading ##################");
+
+    foreach (var league in leagues)
+    {
+        Console.WriteLine($"###### Leauge : # {league.Name} #");
+        var cnt = 1;
+        foreach (var team in league.Teams)
+        {
+            Console.WriteLine($"{cnt++}. Team Name : {team.Name}. |  Coach Name : {team.Coach.Name}.");
+        }
+        Console.WriteLine(Environment.NewLine );
+    }
+}
+
+async Task ExplicitlyLoading()
+{
+    var leagues = await context.Leagues.FindAsync(4);
+
+    if (leagues == null) return;
+
+    await context.Entry(leagues)
+        .Collection(x=> x.Teams)      // Load Team here we can load only 1 level of data.
+        .LoadAsync();
+
+    Console.WriteLine("################## Explicitly Loading ##################");
+
+    Console.WriteLine($"###### Leauge : # {leagues.Name} #");
+    
+    foreach (var team in leagues.Teams)
+    {
+        Console.WriteLine($"1. Team Name : {team.Name}.");
+    }
+    Console.WriteLine(Environment.NewLine);
+}
+
+async Task LazyLoading()
+{
+    var league = await context.Leagues.FindAsync(4);
+
+    if (league == null) return;
+
+    Console.WriteLine("################## Lazy Loading ##################");
+    Console.WriteLine($"###### Leauge : # {league.Name} #");
+    var cnt = 1;
+    foreach (var team in league.Teams)
+    {
+        Console.WriteLine($"{cnt++}. Team Name : {team.Name}. |  Coach Name : {team.Coach.Name}.");
+    }
+    Console.WriteLine(Environment.NewLine);
+}
+
 async Task DeleteData()
 {
     PrintCoachesData(await context.Coaches.ToListAsync());
 
     Console.WriteLine("Do you want to Delete the above inserted data?");
-    var yes = Console.ReadLine()?? "N" ;
+    var yes = Console.ReadLine() ?? "N";
 
     if (yes.ToString().Equals("y", StringComparison.OrdinalIgnoreCase))
     {
@@ -69,7 +138,7 @@ async Task DeleteData()
         if (coach != null)
         {
             Console.WriteLine($"################## Coach {coach.Id}.{coach.Name} is deleted,");
-            
+
             // Here we have to change the Entry State to make in modified entry state
             //context.Entry(coach).State = EntityState.Deleted;
             context.Coaches.Remove(coach);
@@ -95,8 +164,8 @@ async Task UpdateData()
         int id = Convert.ToInt32(Console.ReadLine());
 
         var coach = await context.Coaches
-           // .AsNoTracking()  <- if its marked a no tracker then we cannot save the changes in the DB
-            .FirstOrDefaultAsync(x=> x.Id == id);
+            // .AsNoTracking()  <- if its marked a no tracker then we cannot save the changes in the DB
+            .FirstOrDefaultAsync(x => x.Id == id);
 
         if (coach != null)
         {
@@ -173,7 +242,7 @@ async Task GetDataWithNoTracking()
     var data = await context.Teams
         .AsNoTracking()
         .ToListAsync();
-   
+
     Console.WriteLine($"{data.Count} Data Retrieved in: {stopwatch.ElapsedMilliseconds} milliSecond with No tracking");
 
     var stopwatch2 = new Stopwatch();
@@ -196,7 +265,7 @@ async Task GetTeamsProjection()
             TeamId = x.Id
         }).ToListAsync();
 
-    foreach(var team in data)
+    foreach (var team in data)
     {
         Console.WriteLine($"Projection Data : {team.Name} & {team.TeamId}");
     }
@@ -215,7 +284,7 @@ async Task OrderByMethod()
 {
     // Assending Order
     var orderItemsInAscending = await context.Teams
-        .OrderBy(x=> x.Name)
+        .OrderBy(x => x.Name)
         .ToListAsync();
     PrintData(orderItemsInAscending, "Assending Order");
 
@@ -260,11 +329,11 @@ async Task AggrigationMethods()
     var noOfTeamMembers = await context.Teams.CountAsync();
     PrintNumbers(noOfTeamMembers, "Total number of team members: ");
 
-    var NoOfTeamMemversWithConditions = await context.Teams.CountAsync(x=> x.Id >= 3);
+    var NoOfTeamMemversWithConditions = await context.Teams.CountAsync(x => x.Id >= 3);
     PrintNumbers(NoOfTeamMemversWithConditions, "Total number of team members with Conditions: ");
 
     // MAX
-    var maxTeam = await context.Teams.MaxAsync(x=> x.Id);
+    var maxTeam = await context.Teams.MaxAsync(x => x.Id);
     PrintNumbers(maxTeam, "Max: ");
 
     // MIN
@@ -289,18 +358,18 @@ void PrintNumbers(int count, string msg)
 async Task GetTeamByFilter()
 {
     Console.Write("---------------------------------- Enter a Team name ---------------------------------- :");
-    
-    var readData = Console.ReadLine()?? "";
+
+    var readData = Console.ReadLine() ?? "";
 
     var data = await context.Teams.Where(x => x.Name == readData).ToListAsync();
     PrintData(data, "Exact match");
 
     // To search matching data in the table using Contains
-    var patialMatches = await context.Teams.Where(x=>x.Name != null && x.Name.Contains(readData)).ToListAsync();
+    var patialMatches = await context.Teams.Where(x => x.Name != null && x.Name.Contains(readData)).ToListAsync();
     PrintData(patialMatches, "Contains Function");
 
     // To Search matching data in the table using EF core Like function
-    var likeData = await context.Teams.Where(x=> EF.Functions.Like(x.Name, $"%{readData}%")).ToListAsync();
+    var likeData = await context.Teams.Where(x => EF.Functions.Like(x.Name, $"%{readData}%")).ToListAsync();
     PrintData(likeData, "Like Function");
 }
 
@@ -309,8 +378,8 @@ async Task GetAllTeamsQuerySyntax()
     var input = "CSK";
 
     var teams = await (from team in context.Teams
-                where EF.Functions.Like(team.Name, $"%{input}%")
-                select team).ToListAsync();
+                       where EF.Functions.Like(team.Name, $"%{input}%")
+                       select team).ToListAsync();
     PrintData(teams, "Select Query using %");
 }
 
@@ -340,7 +409,7 @@ async Task GetTeamById()
     var t1 = context.Teams.First(x => x.Id == 1);
     var t2 = await context.Teams.FirstAsync(x => x.Id == 1);
     var t3 = context.Teams.FirstOrDefault(x => x.Id == 1);
-    var t4 = await context.Teams.FirstOrDefaultAsync(x=> x.Id == 1);
+    var t4 = await context.Teams.FirstOrDefaultAsync(x => x.Id == 1);
 
     // Using Single Here Below 5, 6 will gives exception when no data found.
     var t5 = context.Teams.Single(x => x.Id == 1);
@@ -393,4 +462,45 @@ void PrintMatchesData(List<Match> matches, string? mesg)
         Console.WriteLine($"{mesg} ################# {match.Id}. {match.HomeTeamId}, {match.AwayTeamId}, {match.TicketPrice}, {match.CreatedAt},  {match.CreatedBy}, {match.ModifiedDate} ,  {match.ModifiedBy}. #################");
     }
     Console.Write("---------------------------------- Data ^:");
+}
+
+static async Task AddRelatedData(FootballLeagueDbContext context)
+{
+    var team = new Team        // Add 2 related records at same time
+    {
+        Name = "Kings India",
+        Coach = new Coach
+        {
+            Name = "KI Coach"
+        }
+    };
+
+    var newLeague = new League() // Create a League with all new related record + existing one
+    {
+        Id = 4,
+        Name = "Tata Premiere League",
+        Teams = new List<Team>
+                        {
+                            new Team()
+                            {
+                                Name = "Royal Challanger Banglore",
+                                Coach = new Coach()
+                                {
+                                    Name = "RCB Coach"
+                                }
+                            },
+                            new Team()
+                            {
+                                Name = "fattyabad Team",
+                                Coach = new Coach
+                                {
+                                    Name = "Jonathan Roniyo"
+                                }
+                            }
+                        }
+    };
+
+    await context.Teams.AddAsync(team);
+    await context.Leagues.AddAsync(newLeague);
+    await context.SaveChangesAsync();
 }

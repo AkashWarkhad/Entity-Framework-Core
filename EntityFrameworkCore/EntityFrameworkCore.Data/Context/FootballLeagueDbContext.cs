@@ -32,6 +32,7 @@ namespace EntityFrameworkCore.Data.Context
 
             // Configurtion for Sql Lite
             optionsBuilder.UseSqlite($"Data Source={DbPath}")
+                .UseLazyLoadingProxies()                            // this is load all data at once
                 .LogTo(Console.WriteLine, LogLevel.Information)
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors();

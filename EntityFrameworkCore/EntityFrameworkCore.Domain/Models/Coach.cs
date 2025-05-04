@@ -4,7 +4,7 @@
     {
         public string Name { get; set; }
 
-        public Team? Team { get; set; }   // Navigation Property
+        public virtual Team? Team { get; set; }   // Navigation Property
     }
 }
 
