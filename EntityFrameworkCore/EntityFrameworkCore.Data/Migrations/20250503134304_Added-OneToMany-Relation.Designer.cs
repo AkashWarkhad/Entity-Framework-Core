@@ -3,6 +3,7 @@ using System;
 using EntityFrameworkCore.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkCore.Data.Migrations
 {
     [DbContext(typeof(FootballLeagueDbContext))]
-    partial class FootballLeagueDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250503134304_Added-OneToMany-Relation")]
+    partial class AddedOneToManyRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -46,45 +49,10 @@ namespace EntityFrameworkCore.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 4,
                             CreatedAt = new DateTime(2025, 2, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "MK Sir"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2025, 4, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Dhoni Sir"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2025, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "James Bond Sir"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CreatedAt = new DateTime(2025, 12, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Akash Sir"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CreatedAt = new DateTime(2024, 4, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Ravishari Sir"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            CreatedAt = new DateTime(2025, 8, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Brusli Sir"
                         });
                 });
 
@@ -211,9 +179,6 @@ namespace EntityFrameworkCore.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CoachId")
-                        .IsUnique();
-
                     b.HasIndex("LeagueId");
 
                     b.HasIndex("Name")
@@ -225,7 +190,7 @@ namespace EntityFrameworkCore.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CoachId = 1,
+                            CoachId = 0,
                             CreatedAt = new DateTime(2025, 2, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             LeagueId = 1,
                             ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -234,7 +199,7 @@ namespace EntityFrameworkCore.Data.Migrations
                         new
                         {
                             Id = 2,
-                            CoachId = 2,
+                            CoachId = 0,
                             CreatedAt = new DateTime(2025, 2, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             LeagueId = 2,
                             ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -243,7 +208,7 @@ namespace EntityFrameworkCore.Data.Migrations
                         new
                         {
                             Id = 3,
-                            CoachId = 3,
+                            CoachId = 0,
                             CreatedAt = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             LeagueId = 3,
                             ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -252,7 +217,7 @@ namespace EntityFrameworkCore.Data.Migrations
                         new
                         {
                             Id = 4,
-                            CoachId = 4,
+                            CoachId = 0,
                             CreatedAt = new DateTime(2025, 4, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CSK"
@@ -260,7 +225,7 @@ namespace EntityFrameworkCore.Data.Migrations
                         new
                         {
                             Id = 5,
-                            CoachId = 5,
+                            CoachId = 0,
                             CreatedAt = new DateTime(2025, 3, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             LeagueId = 2,
                             ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -289,24 +254,11 @@ namespace EntityFrameworkCore.Data.Migrations
 
             modelBuilder.Entity("EntityFrameworkCore.Domain.Models.Team", b =>
                 {
-                    b.HasOne("EntityFrameworkCore.Domain.Models.Coach", "Coach")
-                        .WithOne("Team")
-                        .HasForeignKey("EntityFrameworkCore.Domain.Models.Team", "CoachId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("EntityFrameworkCore.Domain.Models.League", "League")
                         .WithMany("Teams")
                         .HasForeignKey("LeagueId");
 
-                    b.Navigation("Coach");
-
                     b.Navigation("League");
-                });
-
-            modelBuilder.Entity("EntityFrameworkCore.Domain.Models.Coach", b =>
-                {
-                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("EntityFrameworkCore.Domain.Models.League", b =>

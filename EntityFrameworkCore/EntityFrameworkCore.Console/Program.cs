@@ -1,6 +1,7 @@
-﻿using EntityFrameworkCore.Data;
-using EntityFrameworkCore.Domain;
+﻿using EntityFrameworkCore.Data.Context;
+using EntityFrameworkCore.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 
 // Note Just press INSERT Key that sit  /////////////////////////////////////////////
@@ -8,7 +9,7 @@ using System.Diagnostics;
 using var context = new FootballLeagueDbContext();
 
 // Fetch All Teams data from the DB
-await GetAllTeamsAndCoaches();
+await GetAllData();
 
 // Fetch Teams data from the DB By Id
 await GetTeamById();
@@ -54,7 +55,7 @@ async Task DeleteData()
     PrintCoachesData(await context.Coaches.ToListAsync());
 
     Console.WriteLine("Do you want to Delete the above inserted data?");
-    var yes = Console.ReadLine();
+    var yes = Console.ReadLine()?? "N" ;
 
     if (yes.ToString().Equals("y", StringComparison.OrdinalIgnoreCase))
     {
@@ -107,7 +108,7 @@ async Task UpdateData()
 
             // Here we have to change the Entry State to make in modified entry state
             //context.Entry(coach).State = EntityState.Modified;
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
         else
         {
@@ -192,7 +193,7 @@ async Task GetTeamsProjection()
         .Select(x => new TeamInfo()
         {
             Name = x.Name,
-            TeamId = x.TeamId
+            TeamId = x.Id
         }).ToListAsync();
 
     foreach(var team in data)
@@ -205,7 +206,6 @@ async Task SkipAndTake()
 {
     var pageNo = 0;
     var recordCount = 3;
-    var next = true;
 
     var data = await context.Teams.Skip(pageNo * recordCount).Take(recordCount).ToListAsync();
     PrintData(data, "Skip & Take");
@@ -236,7 +236,7 @@ async Task GroupingMethod()
 
 
     var groupedTeam = await context.Teams
-    .Where(x => x.Name.Contains("CSK") && x.TeamId >= 2) // Filter before grouping
+    .Where(x => x.Name.Contains("CSK") && x.Id >= 2) // Filter before grouping
     .GroupBy(x => x.CreatedAt.Year)
     .ToListAsync(); // Grouping is now safe
 
@@ -247,7 +247,7 @@ async Task GroupingMethod()
 
         foreach (var team in group) // Iterate over group
         {
-            Console.WriteLine($"- {team.Name} (ID: {team.TeamId})");
+            Console.WriteLine($"- {team.Name} (ID: {team.Id})");
         }
     }
 }
@@ -260,23 +260,23 @@ async Task AggrigationMethods()
     var noOfTeamMembers = await context.Teams.CountAsync();
     PrintNumbers(noOfTeamMembers, "Total number of team members: ");
 
-    var NoOfTeamMemversWithConditions = await context.Teams.CountAsync(x=> x.TeamId >= 3);
+    var NoOfTeamMemversWithConditions = await context.Teams.CountAsync(x=> x.Id >= 3);
     PrintNumbers(NoOfTeamMemversWithConditions, "Total number of team members with Conditions: ");
 
     // MAX
-    var maxTeam = await context.Teams.MaxAsync(x=> x.TeamId);
+    var maxTeam = await context.Teams.MaxAsync(x=> x.Id);
     PrintNumbers(maxTeam, "Max: ");
 
     // MIN
-    var minTeam = await context.Teams.MinAsync(x => x.TeamId);
+    var minTeam = await context.Teams.MinAsync(x => x.Id);
     PrintNumbers(minTeam, "MIN: ");
 
     // AVG
-    var avgTeam = await context.Teams.AverageAsync(x => x.TeamId);
+    var avgTeam = await context.Teams.AverageAsync(x => x.Id);
     PrintNumbers((int)avgTeam, "AVG: ");
 
     // SUM
-    var sumTeam = await context.Teams.SumAsync(x => x.TeamId);
+    var sumTeam = await context.Teams.SumAsync(x => x.Id);
     PrintNumbers(sumTeam, "SUM: ");
 
 }
@@ -290,13 +290,13 @@ async Task GetTeamByFilter()
 {
     Console.Write("---------------------------------- Enter a Team name ---------------------------------- :");
     
-    var readData = Console.ReadLine();
+    var readData = Console.ReadLine()?? "";
 
     var data = await context.Teams.Where(x => x.Name == readData).ToListAsync();
     PrintData(data, "Exact match");
 
     // To search matching data in the table using Contains
-    var patialMatches = await context.Teams.Where(x=> x.Name.Contains(readData)).ToListAsync();
+    var patialMatches = await context.Teams.Where(x=>x.Name != null && x.Name.Contains(readData)).ToListAsync();
     PrintData(patialMatches, "Contains Function");
 
     // To Search matching data in the table using EF core Like function
@@ -319,7 +319,7 @@ void PrintData(List<Team> data, string who = "")
     Console.WriteLine(Environment.NewLine);
     foreach (var team in data)
     {
-        Console.WriteLine($"{who} ################# {team.Name}, {team.CreatedAt}, {team.TeamId} #################");
+        Console.WriteLine($"{who} ################# {team.Id}. {team.Name}, {team.CreatedAt}, {team.CreatedBy}, {team.ModifiedDate}, {team.ModifiedBy}.   #################");
     }
     Console.Write("---------------------------------- Data ^:");
 }
@@ -329,7 +329,7 @@ void PrintCoachesData(List<Coach> data, string who = "")
     Console.WriteLine(Environment.NewLine);
     foreach (var coach in data)
     {
-        Console.WriteLine($"{who} ################# {coach.Name}, {coach.CreatedAt}, {coach.Id} #################");
+        Console.WriteLine($"{who} ################# {coach.Id}. {coach.Name}, {coach.CreatedAt},  {coach.CreatedBy}, {coach.ModifiedDate}, {coach.ModifiedBy}. #################");
     }
     Console.Write("---------------------------------- Data ^:");
 }
@@ -337,34 +337,60 @@ void PrintCoachesData(List<Coach> data, string who = "")
 async Task GetTeamById()
 {
     // Using First Here Below 1, 2 will gives exception when no data found.
-    var t1 = context.Teams.First(x => x.TeamId == 1);
-    var t2 = await context.Teams.FirstAsync(x => x.TeamId == 1);
-    var t3 = context.Teams.FirstOrDefault(x => x.TeamId == 1);
-    var t4 = await context.Teams.FirstOrDefaultAsync(x=> x.TeamId == 1);
+    var t1 = context.Teams.First(x => x.Id == 1);
+    var t2 = await context.Teams.FirstAsync(x => x.Id == 1);
+    var t3 = context.Teams.FirstOrDefault(x => x.Id == 1);
+    var t4 = await context.Teams.FirstOrDefaultAsync(x=> x.Id == 1);
 
     // Using Single Here Below 5, 6 will gives exception when no data found.
-    var t5 = context.Teams.Single(x => x.TeamId == 1);
-    var t6 = await context.Teams.SingleAsync(x => x.TeamId == 1);
-    var t7 = context.Teams.SingleOrDefault(x => x.TeamId == 1);
-    var t8 = await context.Teams.SingleOrDefaultAsync(x => x.TeamId == 1);
+    var t5 = context.Teams.Single(x => x.Id == 1);
+    var t6 = await context.Teams.SingleAsync(x => x.Id == 1);
+    var t7 = context.Teams.SingleOrDefault(x => x.Id == 1);
+    var t8 = await context.Teams.SingleOrDefaultAsync(x => x.Id == 1);
 
     // Using Find No one gives you exception when n
     var t9 = context.Teams.Find(100);
     var t10 = await context.Teams.FindAsync(1);
 }
 
-async Task GetAllTeamsAndCoaches()
+async Task GetAllData()
 {
     try
     {
         var teams = await context.Teams.ToListAsync();
-        PrintData(teams, "All Data :");
+        PrintData(teams, "All Teams Data :");
 
         var coaches = await context.Coaches.ToListAsync();
         PrintCoachesData(coaches, "All Coaches Data :");
+
+        var leagues = await context.Leagues.ToListAsync();
+        PrintLeaguesData(leagues, "All Leagues Data :");
+
+        var matches = await context.Matches.ToListAsync();
+        PrintMatchesData(matches, "All Matches Data :");
     }
     catch (Exception ex)
     {
         Console.WriteLine(ex.Data.ToString() + Environment.NewLine + ex.Message);
     }
+}
+
+void PrintLeaguesData(List<League> leagues, string? mesg)
+{
+    Console.WriteLine(Environment.NewLine);
+    foreach (var league in leagues)
+    {
+        Console.WriteLine($"{mesg} ################# {league.Id}. {league.Name}, {league.CreatedAt},  {league.CreatedBy}, {league.ModifiedDate}, {league.ModifiedBy}. #################");
+    }
+    Console.Write("---------------------------------- Data ^:");
+}
+
+void PrintMatchesData(List<Match> matches, string? mesg)
+{
+    Console.WriteLine(Environment.NewLine);
+    foreach (var match in matches)
+    {
+        Console.WriteLine($"{mesg} ################# {match.Id}. {match.HomeTeamId}, {match.AwayTeamId}, {match.TicketPrice}, {match.CreatedAt},  {match.CreatedBy}, {match.ModifiedDate} ,  {match.ModifiedBy}. #################");
+    }
+    Console.Write("---------------------------------- Data ^:");
 }
