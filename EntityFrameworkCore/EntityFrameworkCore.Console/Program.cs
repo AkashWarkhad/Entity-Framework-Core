@@ -9,6 +9,8 @@ using var context = new FootballLeagueDbContext();
 
 //await AddRelatedData(context);
 
+await GetTeamAndViewData();
+
 // Eager Loading to load the data
 await EagerLoading();
 
@@ -59,6 +61,17 @@ await UpdateData();
 
 // Delete the record
 await DeleteData();
+
+
+async Task GetTeamAndViewData()
+{
+    var data = await context.TeamAndLeagueView.ToListAsync();
+
+    foreach (var item in data)
+    {
+        Console.WriteLine($"###### Team Name :{item.Name} | League Name {item.LeagueName}");
+    }
+}
 
 async Task EagerLoading()
 {
