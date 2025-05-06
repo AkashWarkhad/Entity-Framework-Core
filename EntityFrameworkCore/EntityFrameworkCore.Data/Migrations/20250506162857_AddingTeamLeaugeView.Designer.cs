@@ -3,6 +3,7 @@ using System;
 using EntityFrameworkCore.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkCore.Data.Migrations
 {
     [DbContext(typeof(FootballLeagueDbContext))]
-    partial class FootballLeagueDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250506162857_AddingTeamLeaugeView")]
+    partial class TeamsAndLeagueView
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -330,19 +333,6 @@ namespace EntityFrameworkCore.Data.Migrations
                             ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CSK Team B"
                         });
-                });
-
-            modelBuilder.Entity("EntityFrameworkCore.Domain.Models.TeamsAndLeagueModel", b =>
-                {
-                    b.Property<string>("LeagueName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("vw_TeamAndLeague", (string)null);
                 });
 
             modelBuilder.Entity("EntityFrameworkCore.Domain.Models.Match", b =>

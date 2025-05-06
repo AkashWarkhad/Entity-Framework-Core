@@ -1,4 +1,5 @@
-﻿using EntityFrameworkCore.Domain.Models;
+﻿using EntityFrameworkCore.Data.Migrations;
+using EntityFrameworkCore.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
@@ -22,6 +23,8 @@ namespace EntityFrameworkCore.Data.Context
 
         public DbSet<Match> Matches { get; set; }
 
+        public DbSet<TeamsAndLeagueModel> TeamAndLeagueView { get; set; }
+
 
         public string DbPath { get; private set; }
 
@@ -34,7 +37,7 @@ namespace EntityFrameworkCore.Data.Context
             optionsBuilder.UseSqlite($"Data Source={DbPath}")
                 .UseLazyLoadingProxies()                            // this is load all data at once
                 .LogTo(Console.WriteLine, LogLevel.Information)
-                .EnableSensitiveDataLogging()
+                //.EnableSensitiveDataLogging()
                 .EnableDetailedErrors();
             // .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); <- DO not track the query just read it and that sit. Its Quicker
         }
@@ -49,6 +52,7 @@ namespace EntityFrameworkCore.Data.Context
 
             // OR we can configure it globally like below instade of doing for each.
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.Entity<TeamsAndLeagueModel>().HasNoKey().ToView("vw_TeamAndLeague");
         }
     }
 }
