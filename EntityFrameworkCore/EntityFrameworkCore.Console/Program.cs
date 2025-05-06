@@ -70,13 +70,13 @@ void RawSqlDataFetchMethods()
 {
     // FromSqlInterpolated  (Interpolated SQL with safety)
     var name = "CSK";
-    teams = context.Teams
+    var teams = context.Teams
         .FromSqlInterpolated($"SELECT * FROM Teams WHERE Name = {name}")
         .ToList();
 
     //FromSqlRaw (Raw SQL, manual parameters	❌ (unless manually parameterized)
     var param = new SqliteParameter("@name", "CSK");
-    var teams = context.Teams
+    teams = context.Teams
         .FromSqlRaw("SELECT * FROM Teams WHERE Name = @name", param)
         .ToList();
 
