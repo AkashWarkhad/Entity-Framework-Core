@@ -1,5 +1,7 @@
 ﻿using EntityFrameworkCore.Data.Context;
 using EntityFrameworkCore.Domain.Models;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
@@ -10,6 +12,8 @@ using var context = new FootballLeagueDbContext();
 //await AddRelatedData(context);
 
 await GetTeamAndViewData();
+
+RawSqlDataFetchMethods();
 
 // Eager Loading to load the data
 await EagerLoading();
@@ -62,6 +66,25 @@ await UpdateData();
 // Delete the record
 await DeleteData();
 
+void RawSqlDataFetchMethods()
+{
+    // FromSqlInterpolated  (Interpolated SQL with safety)
+    var name = "CSK";
+    teams = context.Teams
+        .FromSqlInterpolated($"SELECT * FROM Teams WHERE Name = {name}")
+        .ToList();
+
+    //FromSqlRaw (Raw SQL, manual parameters	❌ (unless manually parameterized)
+    var param = new SqliteParameter("@name", "CSK");
+    var teams = context.Teams
+        .FromSqlRaw("SELECT * FROM Teams WHERE Name = @name", param)
+        .ToList();
+
+    // FromSql ⚠️ Do NOT use. Only supported in older EF Core versions.
+    teams = context.Teams
+        .FromSql($"SELECT * FROM Teams WHERE Name = {name}")
+        .ToList();
+}
 
 async Task GetTeamAndViewData()
 {
