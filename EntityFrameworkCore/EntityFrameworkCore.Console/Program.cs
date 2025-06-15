@@ -84,6 +84,31 @@ void RawSqlDataFetchMethods()
     teams = context.Teams
         .FromSql($"SELECT * FROM Teams WHERE Name = {name}")
         .ToList();
+    
+    // Mixing Of Raw With SQL Query
+    var team = context.Teams.FromSql($"SELECT * FROM Teams WHERE Name = {name}")
+        .Where(q=> q.Id == 1)
+        .OrderBy(q=> q.Id)
+        .Include(x=> x.League)
+        .ToList();
+
+    // Execution of stored procedures
+    // Note: PendingModelChanges <- this is used just for example.
+    var leagueId = 1;
+    var league = context.Leagues.FromSqlInterpolated($"EXEC dbo.StoredProcedureToGetLeagueNameHere {leagueId}");
+
+    // Non-Querying Statements
+    //var someNewTeamName = "NewName";
+    //var success = context.Database.ExecuteSqlInterpolated($"UPDATE Teams SET Name = {someNewTeamName}");
+
+    var deleteTeam = 1;
+   // var teamDeletedSuccess = context.Database.ExecuteSqlInterpolated($"EXEC dbo.DeleteTeam {deleteTeam}");
+
+    // Query Scaler Non-Entity Type
+    //var leagueIds = context.Database.SqlQuery<int>($"SELECT Id FROM Leagues").ToList();
+
+    // Execute the user defined query
+    //var earliestMatch = context.GetTeamMatch(leagueId);
 }
 
 async Task GetTeamAndViewData()

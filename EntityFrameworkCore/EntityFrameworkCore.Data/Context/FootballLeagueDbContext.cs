@@ -53,6 +53,12 @@ namespace EntityFrameworkCore.Data.Context
             // OR we can configure it globally like below instade of doing for each.
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             modelBuilder.Entity<TeamsAndLeagueModel>().HasNoKey().ToView("vw_TeamAndLeague");
+
+            modelBuilder.HasDbFunction(typeof(FootballLeagueDbContext).GetMethod(nameof(GetTeamMatch), new[] { typeof(int) }))
+                .HasName("GetMatch"); //<- This is the function name from the DB
         }
+
+        // This is used to map the count of records present in the function present in the DB.
+        public DateTime GetTeamMatch(int teamId) => throw new NotImplementedException();
     }
 }
