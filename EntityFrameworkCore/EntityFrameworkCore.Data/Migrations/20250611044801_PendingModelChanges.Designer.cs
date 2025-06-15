@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkCore.Data.Migrations
 {
     [DbContext(typeof(FootballLeagueDbContext))]
-    [Migration("20250506173839_AddNewTable")]
-    partial class AddNewTable
+    [Migration("20250611044801_PendingModelChanges")]
+    partial class PendingModelChanges
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,7 +57,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(2025, 2, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "MK Sir"
                         },
                         new
@@ -66,7 +66,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(2025, 4, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Dhoni Sir"
                         },
                         new
@@ -75,7 +75,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(2025, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "James Bond Sir"
                         },
                         new
@@ -84,7 +84,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(2025, 12, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Akash Sir"
                         },
                         new
@@ -93,7 +93,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(2024, 4, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Ravishari Sir"
                         },
                         new
@@ -102,7 +102,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(2025, 8, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Brusli Sir"
                         });
                 });
@@ -140,7 +140,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Jamica Premiere League"
                         },
                         new
@@ -149,7 +149,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Swami Nath Premiere"
                         },
                         new
@@ -158,7 +158,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Indian Premiere League"
                         });
                 });
@@ -219,7 +219,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             HomeTeamId = 1,
                             HomeTeamScore = 20,
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             TicketPrice = 1000m
                         },
                         new
@@ -233,7 +233,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             HomeTeamId = 3,
                             HomeTeamScore = 10,
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             TicketPrice = 5000m
                         });
                 });
@@ -287,7 +287,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedBy = "Akash Warkhad",
                             LeagueId = 1,
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CSK Team"
                         },
                         new
@@ -298,7 +298,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedBy = "Akash Warkhad",
                             LeagueId = 2,
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "MI Team"
                         },
                         new
@@ -309,7 +309,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedBy = "Akash Warkhad",
                             LeagueId = 3,
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "KKR Team"
                         },
                         new
@@ -319,7 +319,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedAt = new DateTime(2025, 4, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CSK"
                         },
                         new
@@ -330,7 +330,7 @@ namespace EntityFrameworkCore.Data.Migrations
                             CreatedBy = "Akash Warkhad",
                             LeagueId = 2,
                             ModifiedBy = "Akash Warkhad",
-                            ModifiedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ModifiedDate = new DateTime(2025, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CSK Team B"
                         });
                 });
