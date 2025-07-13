@@ -66,6 +66,10 @@ await UpdateData();
 // Delete the record
 await DeleteData();
 
+Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+
+
 void RawSqlDataFetchMethods()
 {
     // FromSqlInterpolated  (Interpolated SQL with safety)
