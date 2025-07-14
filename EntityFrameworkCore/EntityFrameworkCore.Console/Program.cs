@@ -6,8 +6,16 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 // Note Just press INSERT Key when new data overrides existing ////////////////////////////
+//FootbalLeagueDbContext : C:\Users\HP\AppData\Roaming\FootballLeague_EfCore.db
 
-using var context = new FootballLeagueDbContext();
+var folder = Environment.SpecialFolder.ApplicationData;
+var path = Environment.GetFolderPath(folder);
+var DbPath = Path.Combine(path, "FootballLeague_EfCore.db");
+var optionsBuilder = new DbContextOptionsBuilder<FootballLeagueDbContext>();
+
+optionsBuilder.UseSqlite($"Data Source={DbPath}");
+
+using var context = new FootballLeagueDbContext(optionsBuilder.Options);
 
 //await AddRelatedData(context);
 

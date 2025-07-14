@@ -1,18 +1,22 @@
-﻿using EntityFrameworkCore.Data.Migrations;
-using EntityFrameworkCore.Domain.Models;
+﻿using EntityFrameworkCore.Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Reflection;
 
 namespace EntityFrameworkCore.Data.Context
 {
     public class FootballLeagueDbContext : DbContext
     {
-        public FootballLeagueDbContext()
+        // Remove commented code if not needed 
+        //public FootballLeagueDbContext()
+        //{
+        //    var folder = Environment.SpecialFolder.ApplicationData;
+        //    var path = Environment.GetFolderPath(folder);
+        //    DbPath = Path.Combine(path, "FootballLeague_EfCore.db");
+        //}
+
+        public FootballLeagueDbContext(DbContextOptions<FootballLeagueDbContext> options) : base(options)
         {
-            var folder = Environment.SpecialFolder.ApplicationData;
-            var path = Environment.GetFolderPath(folder);
-            DbPath = Path.Combine(path, "FootballLeague_EfCore.db");
+            
         }
 
         public DbSet<Team> Teams { get; set; }
@@ -26,21 +30,22 @@ namespace EntityFrameworkCore.Data.Context
         public DbSet<TeamsAndLeagueModel> TeamAndLeagueView { get; set; }
 
 
-        public string DbPath { get; private set; }
+        public string DbPath { get; private set; } // C:\Users\HP\AppData\Roaming\FootballLeague_EfCore.db
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // Configurtion for SqlServer 
-            //optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB; Initial Catalog=FootballLeague_EfCore; Encrypt= False");
+        // Remove commented code if not needed 
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    // Configurtion for SqlServer 
+        //    //optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB; Initial Catalog=FootballLeague_EfCore; Encrypt= False");
 
-            // Configurtion for Sql Lite
-            optionsBuilder.UseSqlite($"Data Source={DbPath}")
-                .UseLazyLoadingProxies()                            // this is load all data at once
-                .LogTo(Console.WriteLine, LogLevel.Information)
-                //.EnableSensitiveDataLogging()
-                .EnableDetailedErrors();
-            // .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); <- DO not track the query just read it and that sit. Its Quicker
-        }
+        //    // Configurtion for Sql Lite
+        //    optionsBuilder.UseSqlite($"Data Source={DbPath}")
+        //        .UseLazyLoadingProxies()                            // this is load all data at once
+        //        .LogTo(Console.WriteLine, LogLevel.Information)
+        //        //.EnableSensitiveDataLogging()
+        //        .EnableDetailedErrors();
+        //    // .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); <- DO not track the query just read it and that sit. Its Quicker
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
