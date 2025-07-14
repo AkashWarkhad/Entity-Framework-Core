@@ -12,11 +12,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var sqlliteDatabaseName = builder.Configuration.GetConnectionString("SqliteDatabaseConnectionString");
+
 var folder = Environment.SpecialFolder.ApplicationData;
 var path = Environment.GetFolderPath(folder);
 var DbPath = Path.Combine(path, sqlliteDatabaseName);
 
-var connectionString = $"Data Source = {DbPath}";
+var connectionString = $"Data Source={DbPath}";
 
 builder.Services.AddDbContext<FootballLeagueDbContext>(options =>
 {
