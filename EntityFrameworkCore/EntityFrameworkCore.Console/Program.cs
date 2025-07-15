@@ -74,6 +74,9 @@ await UpdateData();
 // Delete the record
 await DeleteData();
 
+// Add the Coaches in the table
+await AddData();
+
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 
