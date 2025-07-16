@@ -8,6 +8,7 @@ using System.Diagnostics;
 // Note Just press INSERT Key when new data overrides existing ////////////////////////////
 //FootbalLeagueDbContext : C:\Users\HP\AppData\Roaming\FootballLeague_EfCore.db
 
+
 var folder = Environment.SpecialFolder.ApplicationData;
 var path = Environment.GetFolderPath(folder);
 var DbPath = Path.Combine(path, "FootballLeague_EfCore.db");
@@ -16,6 +17,8 @@ var optionsBuilder = new DbContextOptionsBuilder<FootballLeagueDbContext>();
 optionsBuilder.UseSqlite($"Data Source={DbPath}");
 
 using var context = new FootballLeagueDbContext(optionsBuilder.Options);
+
+HowToAccessTemporalTable();
 
 //await AddRelatedData(context);
 
@@ -124,6 +127,28 @@ void RawSqlDataFetchMethods()
 
     // Execute the user defined query
     //var earliestMatch = context.GetTeamMatch(leagueId);
+}
+
+void HowToAccessTemporalTable()
+{
+    using var sqlServerContext = new FootballTemporalDbContext();
+
+    var teamHistory = sqlServerContext.Teams.
+        TemporalAll()
+        .Where(q => q.Id == 1)
+        .Select(team => new
+        {
+            Name = team.Name,
+            ValueFrom = EF.Property<DateTime>(team, "PeriodStart"),
+            ValueTo = EF.Property<DateTime>(team, "PeriodEnd")
+        }).ToList();
+
+    foreach (var item in teamHistory)
+    {
+        Console.WriteLine($"Team Name: {item.Name}, Value From: {item.ValueFrom}, Value To: {item.ValueTo}");
+    }
+
+    Console.WriteLine("Done with Temporal data Printing..................");
 }
 
 async Task GetTeamAndViewData()

@@ -10,7 +10,7 @@ namespace EntityFrameworkCore.Data.Configuration
         {
             builder.HasIndex(x=> x.Name).IsUnique();
 
-            builder.ToTable("TeamsHistory", b => b.IsTemporal()); // This will create a temporal table for Teams, used for audits
+            builder.ToTable("Teams", b => b.IsTemporal()); // This will create a temporal table for Teams, used for audits
 
             builder.HasMany(x=> x.HomeMatches)      // Team has many matches
                 .WithOne(y=> y.HomeTeam)            // With home team

@@ -11,17 +11,19 @@ namespace EntityFrameworkCore.Data.Context
             
         }
 
-        public DbSet<Team> Teams2 { get; set; }
+        public DbSet<Team> Teams { get; set; }
 
-        public DbSet<Coach> Coaches2 { get; set; }
+        public DbSet<Coach> Coaches { get; set; }
 
-        public DbSet<League> Leagues2 { get; set; }
+        public DbSet<League> Leagues { get; set; }
 
-        public DbSet<Match> Matches2 { get; set; }
+        public DbSet<Match> Matches { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB; Initial Catalog=FootballLeague_EfCore; Encrypt=True;");
+            optionsBuilder.UseSqlServer(
+    "Data Source=localhost\\MSSQLSERVER01; Initial Catalog=FootballLeague_EfCore; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;");
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
