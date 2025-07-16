@@ -1,18 +1,13 @@
 ﻿using EntityFrameworkCore.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
 namespace EntityFrameworkCore.Data.Context
 {
     public class FootballLeagueDbContext : DbContext
     {
-        // Remove commented code if not needed 
-        //public FootballLeagueDbContext()
-        //{
-        //    var folder = Environment.SpecialFolder.ApplicationData;
-        //    var path = Environment.GetFolderPath(folder);
-        //    DbPath = Path.Combine(path, "FootballLeague_EfCore.db");
-        //}
 
         public FootballLeagueDbContext(DbContextOptions<FootballLeagueDbContext> options) : base(options)
         {
@@ -32,38 +27,78 @@ namespace EntityFrameworkCore.Data.Context
 
         public string DbPath { get; private set; } // C:\Users\HP\AppData\Roaming\FootballLeague_EfCore.db
 
-        // Remove commented code if not needed 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    // Configurtion for SqlServer 
-        //    //optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB; Initial Catalog=FootballLeague_EfCore; Encrypt= False");
-
-        //    // Configurtion for Sql Lite
-        //    optionsBuilder.UseSqlite($"Data Source={DbPath}")
-        //        .UseLazyLoadingProxies()                            // this is load all data at once
-        //        .LogTo(Console.WriteLine, LogLevel.Information)
-        //        //.EnableSensitiveDataLogging()
-        //        .EnableDetailedErrors();
-        //    // .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); <- DO not track the query just read it and that sit. Its Quicker
-        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //modelBuilder.ApplyConfiguration(new TeamConfigurationHelper());
-
             //modelBuilder.ApplyConfiguration(new CoachConfigurationHelper());
-
             //modelBuilder.ApplyConfiguration(new LeagueConfigurationHelper());
 
             // OR we can configure it globally like below instade of doing for each.
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+            // This is used to map the view present in the DB.
             modelBuilder.Entity<TeamsAndLeagueModel>().HasNoKey().ToView("vw_TeamAndLeague");
 
+            // This is used to map the function present in the DB.
             modelBuilder.HasDbFunction(typeof(FootballLeagueDbContext).GetMethod(nameof(GetTeamMatch), new[] { typeof(int) }))
                 .HasName("GetMatch"); //<- This is the function name from the DB
+        }
+
+        // Override the SaveChangesAsync method to handle any custom logic before saving changes.
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<BaseDomainModel>().Where(q => q.State == EntityState.Added
+            || q.State == EntityState.Modified);
+
+            foreach (var entry in entries)
+            {
+                entry.Entity.ModifiedDate = DateTime.UtcNow;
+                entry.Entity.ModifiedBy = "System"; // You can replace this with the actual user context if available
+
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.CreatedBy = "New System"; // You can replace this with the actual user context if available
+                }
+            }
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+
+        // This is used to configure the conventions for the model. and applied globally.
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<string>().HaveMaxLength(100000);
+            configurationBuilder.Properties<decimal>().HavePrecision(18, 2); // Set precision for decimal properties
         }
 
         // This is used to map the count of records present in the function present in the DB.
         public DateTime GetTeamMatch(int teamId) => throw new NotImplementedException();
     }
+
+    public class FootballLeagueDbContextFactory : IDesignTimeDbContextFactory<FootballLeagueDbContext>
+    {
+        public FootballLeagueDbContext CreateDbContext(string[] args)
+        {
+            var folder = Environment.SpecialFolder.ApplicationData;
+            var path = Environment.GetFolderPath(folder);
+
+            IConfigurationRoot config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            var dbFileName = config.GetConnectionString("SqliteDatabaseConnectionString"); // e.g. "FootballLeague_EfCore.db"
+            var dbPath = Path.Combine(path, dbFileName); // full path to db file
+
+            // 2️⃣ Build the options EF Core needs
+            var optionsBuilder = new DbContextOptionsBuilder<FootballLeagueDbContext>();
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+
+            // 3️⃣ Return a context configured with those options
+            return new FootballLeagueDbContext(optionsBuilder.Options);
+        }
+    }
+
 }

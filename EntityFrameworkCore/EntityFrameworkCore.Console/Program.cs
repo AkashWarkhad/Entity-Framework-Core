@@ -4,9 +4,11 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Transactions;
 
 // Note Just press INSERT Key when new data overrides existing ////////////////////////////
 //FootbalLeagueDbContext : C:\Users\HP\AppData\Roaming\FootballLeague_EfCore.db
+
 
 var folder = Environment.SpecialFolder.ApplicationData;
 var path = Environment.GetFolderPath(folder);
@@ -16,6 +18,10 @@ var optionsBuilder = new DbContextOptionsBuilder<FootballLeagueDbContext>();
 optionsBuilder.UseSqlite($"Data Source={DbPath}");
 
 using var context = new FootballLeagueDbContext(optionsBuilder.Options);
+
+TransactionManager();
+
+HowToAccessTemporalTable();
 
 //await AddRelatedData(context);
 
@@ -74,10 +80,64 @@ await UpdateData();
 // Delete the record
 await DeleteData();
 
+// Add the Coaches in the table
+await AddData();
+
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 
+void TransactionManager()
+{
+    var transaction = context.Database.BeginTransaction();
+    var league = new League
+    {
+        Name = "Tata Premiere League",
+        CreatedAt = DateTime.Now,
+        CreatedBy = "System"
+    };
 
+    // Add the League to the DB
+    context.Leagues.Add(league);
+    context.SaveChanges();
+
+    var coach = new Coach
+    {
+        Name = "Tata Premiere League Coach",
+        CreatedAt = DateTime.Now,
+        CreatedBy = "System"
+    };
+    // Add the League to the DB
+    context.Coaches.Add(coach);
+    context.SaveChanges();
+
+    transaction.CreateSavepoint("CoachSavepoint1");
+
+    var teams = new List<Team>
+    {
+        new Team
+        {
+            Name = "Royal Challanger Banglore",
+            CreatedAt = DateTime.Now,
+            CreatedBy = "System",
+            Coach = coach,
+            League = league
+        }
+    };
+
+    // Add the League to the DB
+    context.Teams.AddRange(teams);
+    context.SaveChanges();
+
+    try
+    {
+        transaction.Commit();
+    }
+    catch
+    {
+        //transaction.Rollback();
+        transaction.RollbackToSavepoint("CoachSavepoint1");
+    }
+}
 void RawSqlDataFetchMethods()
 {
     // FromSqlInterpolated  (Interpolated SQL with safety)
@@ -121,6 +181,28 @@ void RawSqlDataFetchMethods()
 
     // Execute the user defined query
     //var earliestMatch = context.GetTeamMatch(leagueId);
+}
+
+void HowToAccessTemporalTable()
+{
+    using var sqlServerContext = new FootballTemporalDbContext();
+
+    var teamHistory = sqlServerContext.Teams.
+        TemporalAll()
+        .Where(q => q.Id == 1)
+        .Select(team => new
+        {
+            Name = team.Name,
+            ValueFrom = EF.Property<DateTime>(team, "PeriodStart"),
+            ValueTo = EF.Property<DateTime>(team, "PeriodEnd")
+        }).ToList();
+
+    foreach (var item in teamHistory)
+    {
+        Console.WriteLine($"Team Name: {item.Name}, Value From: {item.ValueFrom}, Value To: {item.ValueTo}");
+    }
+
+    Console.WriteLine("Done with Temporal data Printing..................");
 }
 
 async Task GetTeamAndViewData()
