@@ -65,6 +65,14 @@ namespace EntityFrameworkCore.Data.Context
             return base.SaveChangesAsync(cancellationToken);
         }
 
+
+        // This is used to configure the conventions for the model. and applied globally.
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<string>().HaveMaxLength(100000);
+            configurationBuilder.Properties<decimal>().HavePrecision(18, 2); // Set precision for decimal properties
+        }
+
         // This is used to map the count of records present in the function present in the DB.
         public DateTime GetTeamMatch(int teamId) => throw new NotImplementedException();
     }
