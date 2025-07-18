@@ -1,4 +1,6 @@
-﻿namespace EntityFrameworkCore.Domain.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace EntityFrameworkCore.Domain.Models
 {
     public class Team : BaseDomainModel
     {
