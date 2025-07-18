@@ -19,6 +19,10 @@ optionsBuilder.UseSqlite($"Data Source={DbPath}");
 
 using var context = new FootballLeagueDbContext(optionsBuilder.Options);
 
+await SoftDeleteUsingFlag();
+
+await ConcurrencyChecks();
+
 TransactionManager();
 
 HowToAccessTemporalTable();
@@ -86,56 +90,101 @@ await AddData();
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 
+async Task SoftDeleteUsingFlag()
+{
+    var league = await context.Leagues.FindAsync(1);
+    //league.IsDeleted = true; // Soft delete the record
+    await context.SaveChangesAsync();
+
+    // Fetching all active leagues (not soft deleted) but we already written soft delete filter in the LeagueConfigurationHelper
+    var getActiveLeagues = await context.Leagues
+        // .Where(x => !x.IsDeleted) // Filter out soft deleted records. not needed as we have already applied global filter in the configuration
+        .ToListAsync();
+
+    var allLeagues = await context.Leagues
+        .IgnoreQueryFilters() // Ignore the global filter to get all records including soft deleted ones
+        .ToListAsync();
+}
+
+
+async Task ConcurrencyChecks()
+{
+    // Currently avoiding but if you want then enable it
+    var data = "n";
+    if (data.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+    {
+        var team = await context.Teams.FindAsync(1);
+        //await context.Entry(team).ReloadAsync(); // Refreshes from DB when you trap into the exceptions
+
+        team.Name = "New team with concurrencyCheck";
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            Console.WriteLine($"$*%+++++++++++++++=======Exception occured pls check the exception Message : {ex.Message}");
+            throw;
+        }
+    }
+
+}
+
 void TransactionManager()
 {
-    var transaction = context.Database.BeginTransaction();
-    var league = new League
+    var data = "n";
+    if (data.Equals("y", StringComparison.CurrentCultureIgnoreCase))
     {
-        Name = "Tata Premiere League",
-        CreatedAt = DateTime.Now,
-        CreatedBy = "System"
-    };
-
-    // Add the League to the DB
-    context.Leagues.Add(league);
-    context.SaveChanges();
-
-    var coach = new Coach
-    {
-        Name = "Tata Premiere League Coach",
-        CreatedAt = DateTime.Now,
-        CreatedBy = "System"
-    };
-    // Add the League to the DB
-    context.Coaches.Add(coach);
-    context.SaveChanges();
-
-    transaction.CreateSavepoint("CoachSavepoint1");
-
-    var teams = new List<Team>
-    {
-        new Team
+        var transaction = context.Database.BeginTransaction();
+        var league = new League
         {
-            Name = "Royal Challanger Banglore",
+            Name = "Tata Premiere League",
             CreatedAt = DateTime.Now,
-            CreatedBy = "System",
-            Coach = coach,
-            League = league
+            CreatedBy = "System"
+        };
+
+        // Add the League to the DB
+        context.Leagues.Add(league);
+        context.SaveChanges();
+
+        var coach = new Coach
+        {
+            Name = "Tata Premiere League Coach",
+            CreatedAt = DateTime.Now,
+            CreatedBy = "System"
+        };
+        // Add the League to the DB
+        context.Coaches.Add(coach);
+        context.SaveChanges();
+
+        transaction.CreateSavepoint("CoachSavepoint1");
+
+        var teams = new List<Team>
+        {
+            new Team
+            {
+                Name = "Royal Challanger Banglore",
+                CreatedAt = DateTime.Now,
+                CreatedBy = "System",
+                Coach = coach,
+                League = league
+            }
+        };
+
+        // Add the League to the DB
+        context.Teams.AddRange(teams);
+        context.SaveChanges();
+
+        try
+        {
+            transaction.Commit();
         }
-    };
-
-    // Add the League to the DB
-    context.Teams.AddRange(teams);
-    context.SaveChanges();
-
-    try
-    {
-        transaction.Commit();
-    }
-    catch
-    {
-        //transaction.Rollback();
-        transaction.RollbackToSavepoint("CoachSavepoint1");
+        catch
+        {
+            //transaction.Rollback();
+            transaction.RollbackToSavepoint("CoachSavepoint1");
+        }
     }
 }
 void RawSqlDataFetchMethods()

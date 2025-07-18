@@ -8,6 +8,9 @@ namespace EntityFrameworkCore.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<League> builder)
         {
+            // This is used to filter the records that are not deleted.
+            builder.HasQueryFilter(x => !x.IsDeleted);
+
             builder.HasData(
                 new List<League>()
                 {

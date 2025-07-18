@@ -24,6 +24,14 @@ namespace EntityFrameworkCore.Data.Configuration
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // This is for Sql Server
+            //builder.Property(p => p.Version)
+            //    .IsRowVersion();
+
+            // This is using Concurrency Token
+            builder.Property(p => p.Version)
+                .IsConcurrencyToken();
+
             builder.HasData(
                 new Team
                 {

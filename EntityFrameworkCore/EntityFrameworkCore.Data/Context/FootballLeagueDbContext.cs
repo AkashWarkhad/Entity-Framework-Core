@@ -61,6 +61,8 @@ namespace EntityFrameworkCore.Data.Context
                     entry.Entity.CreatedAt = DateTime.UtcNow;
                     entry.Entity.CreatedBy = "New System"; // You can replace this with the actual user context if available
                 }
+                // Update the Version on every changes for  Concurrency check 
+                entry.Entity.Version = Guid.NewGuid();
             }
             return base.SaveChangesAsync(cancellationToken);
         }

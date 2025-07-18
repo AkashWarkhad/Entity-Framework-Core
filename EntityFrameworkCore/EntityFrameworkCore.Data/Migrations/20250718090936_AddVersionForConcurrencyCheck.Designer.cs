@@ -3,6 +3,7 @@ using System;
 using EntityFrameworkCore.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkCore.Data.Migrations
 {
     [DbContext(typeof(FootballLeagueDbContext))]
-    partial class FootballLeagueDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250718090936_AddVersionForConcurrencyCheck")]
+    partial class AddVersionForConcurrencyCheck
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -126,9 +129,6 @@ namespace EntityFrameworkCore.Data.Migrations
                         .HasMaxLength(100000)
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100000)
                         .HasColumnType("TEXT");
@@ -155,7 +155,6 @@ namespace EntityFrameworkCore.Data.Migrations
                             Id = 1,
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
-                            IsDeleted = false,
                             ModifiedBy = "Akash Warkhad",
                             ModifiedDate = new DateTime(2025, 7, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Jamica Premiere League",
@@ -166,7 +165,6 @@ namespace EntityFrameworkCore.Data.Migrations
                             Id = 2,
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
-                            IsDeleted = false,
                             ModifiedBy = "Akash Warkhad",
                             ModifiedDate = new DateTime(2025, 7, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Swami Nath Premiere",
@@ -177,7 +175,6 @@ namespace EntityFrameworkCore.Data.Migrations
                             Id = 3,
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "Akash Warkhad",
-                            IsDeleted = false,
                             ModifiedBy = "Akash Warkhad",
                             ModifiedDate = new DateTime(2025, 7, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Indian Premiere League",
