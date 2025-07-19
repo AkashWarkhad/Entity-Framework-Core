@@ -93,7 +93,7 @@ Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$
 async Task SoftDeleteUsingFlag()
 {
     var league = await context.Leagues.FindAsync(1);
-    //league.IsDeleted = true; // Soft delete the record
+    //league.IsDeleted = true; // Soft delete the record (Temporary commented as don't want to delete the record)
     await context.SaveChangesAsync();
 
     // Fetching all active leagues (not soft deleted) but we already written soft delete filter in the LeagueConfigurationHelper
