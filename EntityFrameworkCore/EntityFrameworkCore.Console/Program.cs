@@ -15,37 +15,18 @@ var path = Environment.GetFolderPath(folder);
 var DbPath = Path.Combine(path, "FootballLeague_EfCore.db");
 var optionsBuilder = new DbContextOptionsBuilder<FootballLeagueDbContext>();
 
+// Use Sqlite for the database
 optionsBuilder.UseSqlite($"Data Source={DbPath}");
+    //.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking) // Do not track the query just read it and that sit. Its Quicker
+    //.EnableSensitiveDataLogging()  // Enables Verbose Logging of SQL Queries and all levels
+    //.EnableDetailedErrors(); // Enables Detailed Errors for better debugging
 
 using var context = new FootballLeagueDbContext(optionsBuilder.Options);
-
-await SoftDeleteUsingFlag();
-
-await ConcurrencyChecks();
-
-TransactionManager();
-
-HowToAccessTemporalTable();
-
-//await AddRelatedData(context);
-
-await GetTeamAndViewData();
-
-RawSqlDataFetchMethods();
-
-// Eager Loading to load the data
-await EagerLoading();
-
-// Explicitly Loading
-await ExplicitlyLoading();
-
-// Lazy Loading
-await LazyLoading();
 
 // Fetch All Teams data from the DB
 await GetAllData();
 
-// Fetch Teams data from the DB By Id
+// Fetch Teams data from the DB By Id 
 await GetTeamById();
 
 // Get data By Filter
@@ -86,6 +67,29 @@ await DeleteData();
 
 // Add the Coaches in the table
 await AddData();
+
+await SoftDeleteUsingFlag();
+
+await ConcurrencyChecks();
+
+TransactionManager();
+
+HowToAccessTemporalTable();
+
+//await AddRelatedData(context);
+
+await GetTeamAndViewData();
+
+RawSqlDataFetchMethods();  
+
+// Eager Loading to load the data
+await EagerLoading();
+
+// Explicitly Loading
+await ExplicitlyLoading();
+
+// Lazy Loading
+await LazyLoading();
 
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
@@ -480,6 +484,7 @@ async Task SkipAndTake()
     var pageNo = 0;
     var recordCount = 3;
 
+    // So as per above example we are skipping 0 records and taking 3 records
     var data = await context.Teams.Skip(pageNo * recordCount).Take(recordCount).ToListAsync();
     PrintData(data, "Skip & Take");
 }
@@ -551,7 +556,6 @@ async Task AggrigationMethods()
     // SUM
     var sumTeam = await context.Teams.SumAsync(x => x.Id);
     PrintNumbers(sumTeam, "SUM: ");
-
 }
 
 void PrintNumbers(int count, string msg)
@@ -581,10 +585,15 @@ async Task GetAllTeamsQuerySyntax()
 {
     var input = "CSK";
 
-    var teams = await (from team in context.Teams
+    var teamsUsingLinqSyntax = await (from team in context.Teams
                        where EF.Functions.Like(team.Name, $"%{input}%")
                        select team).ToListAsync();
-    PrintData(teams, "Select Query using %");
+
+    var team2UsingMethodSyntax = await context.Teams
+        .Where(x => EF.Functions.Like(x.Name, $"%{input}%"))
+        .ToListAsync();
+
+    PrintData(teamsUsingLinqSyntax, "Select Query using %");
 }
 
 void PrintData(List<Team> data, string who = "")
@@ -612,12 +621,16 @@ async Task GetTeamById()
     // Using First Here Below 1, 2 will gives exception when no data found.
     var t1 = context.Teams.First(x => x.Id == 1);
     var t2 = await context.Teams.FirstAsync(x => x.Id == 1);
+
+    // Using FirstOrDefault Here Below 3, 4 will gives null when no data found.
     var t3 = context.Teams.FirstOrDefault(x => x.Id == 1);
     var t4 = await context.Teams.FirstOrDefaultAsync(x => x.Id == 1);
 
     // Using Single Here Below 5, 6 will gives exception when no data found.
     var t5 = context.Teams.Single(x => x.Id == 1);
     var t6 = await context.Teams.SingleAsync(x => x.Id == 1);
+
+    // Using SingleOrDefault Here Below 7, 8 will gives null when no data found.
     var t7 = context.Teams.SingleOrDefault(x => x.Id == 1);
     var t8 = await context.Teams.SingleOrDefaultAsync(x => x.Id == 1);
 
