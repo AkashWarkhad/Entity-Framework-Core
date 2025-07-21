@@ -21,9 +21,12 @@ namespace EntityFrameworkCore.Data.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(
-    "Data Source=localhost\\MSSQLSERVER01; Initial Catalog=FootballLeague_EfCore; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;");
-
+            optionsBuilder.UseSqlServer
+                ("Data Source=localhost\\MSSQLSERVER01; Initial Catalog=FootballLeague_EfCore; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;",
+                options =>
+                {
+                    //options.CommandTimeout(60); // Set command timeout to 60 seconds
+                });
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
