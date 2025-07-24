@@ -56,6 +56,10 @@ await GetDataWithNoTracking();
 // IQueryable VS ListType
 await GetDataWithQueryableAndInMemoryListType();
 
+//await AddRelatedData(context);
+
+await GetTeamAndViewData();
+
 // Add the Coaches in the table
 await AddData();
 
@@ -77,20 +81,18 @@ await LazyLoading();
 // Reading a Data from the Raw Sql String Query
 RawSqlDataFetchMethods();
 
-await SoftDeleteUsingFlag();
-
-await ConcurrencyChecks();
-
-TransactionManager();
-
+// Retrive the data from the temporal table to see the history of corresponding table.
 HowToAccessTemporalTable();
 
-//await AddRelatedData(context);
+// This is to handel the roolback if someth
+TransactionManager();
 
-await GetTeamAndViewData();
+//Optimistice concurrency
+await OptimisticConcurrencyChecks();
 
+// Just make a flag or set perticular field as deleted mark
+await SoftDeleteUsingFlag();
  
-
 
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
@@ -112,7 +114,7 @@ async Task SoftDeleteUsingFlag()
 }
 
 
-async Task ConcurrencyChecks()
+async Task OptimisticConcurrencyChecks()
 {
     // Currently avoiding but if you want then enable it
     var data = "n";
@@ -125,7 +127,7 @@ async Task ConcurrencyChecks()
 
         try
         {
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(); // At the same timr if anyone is changing the record from the DB then exceptio raised.
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -242,8 +244,8 @@ void HowToAccessTemporalTable()
 {
     using var sqlServerContext = new FootballTemporalDbContext();
 
-    var teamHistory = sqlServerContext.Teams.
-        TemporalAll()
+    var teamHistory = sqlServerContext.Teams
+        .TemporalAll()
         .Where(q => q.Id == 1)
         .Select(team => new
         {
