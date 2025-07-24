@@ -65,8 +65,17 @@ await UpdateData();
 // Delete the record
 await DeleteData();
 
-// Add the Coaches in the table
-await AddData();
+// Eager Loading to load the data
+await EagerLoading();
+
+// Explicitly Loading
+await ExplicitlyLoading();
+
+// Lazy Loading
+await LazyLoading();
+
+// Reading a Data from the Raw Sql String Query
+RawSqlDataFetchMethods();
 
 await SoftDeleteUsingFlag();
 
@@ -80,16 +89,8 @@ HowToAccessTemporalTable();
 
 await GetTeamAndViewData();
 
-RawSqlDataFetchMethods();  
+ 
 
-// Eager Loading to load the data
-await EagerLoading();
-
-// Explicitly Loading
-await ExplicitlyLoading();
-
-// Lazy Loading
-await LazyLoading();
 
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CODE COMPLETED $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
@@ -191,6 +192,7 @@ void TransactionManager()
         }
     }
 }
+
 void RawSqlDataFetchMethods()
 {
     // FromSqlInterpolated  (Interpolated SQL with safety)
@@ -419,6 +421,7 @@ async Task AddData()
 
         if (yes.ToString().Equals("n", StringComparison.OrdinalIgnoreCase))
         {
+            // Bulk insert the data
             await context.AddRangeAsync(newCoaches);
             await context.SaveChangesAsync();
             Console.WriteLine("############## Data inserted successfully! ########################");

@@ -16,7 +16,7 @@ namespace EntityFrameworkCore.Data.Configuration
                 .WithOne(y=> y.HomeTeam)            // With home team
                 .HasForeignKey(z=> z.HomeTeamId)    // Matches has HomeTeamId as a FK
                 .IsRequired()                       // Its Required
-                .OnDelete(DeleteBehavior.Restrict); // On deletion of team should not delete the Matches.
+                .OnDelete(DeleteBehavior.Restrict); // On deletion of team should not delete the Matches.Just set the null/default value
 
             builder.HasMany(x=> x.AwayMatches)
                 .WithOne(y=> y.AwayTeam)
