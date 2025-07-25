@@ -1,10 +1,4 @@
-# Entity-Framework-Core
-
-Sure, here’s a concise and clear **README description** for your GitHub project `Entity-Framework-Core`:
-
----
-
-# Entity Framework Core Demo 🚀
+# Entity Framework Core 🚀
 
 This project is a hands-on demonstration of using **Entity Framework Core** with the **Code-First** approach in a C# .NET environment. It showcases how to define models, configure the `DbContext`, manage database migrations, and perform basic CRUD operations using LINQ and asynchronous methods.
 
