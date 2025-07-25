@@ -38,7 +38,3 @@ This project is a hands-on demonstration of using **Entity Framework Core** with
    ```
 
 5. Build and run the project
-
----
-
-Let me know if you'd like to include screenshots, diagrams, or a folder structure section as well!
