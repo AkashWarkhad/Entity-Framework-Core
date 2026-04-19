@@ -48,8 +48,8 @@ namespace EntityFrameworkCore.Data.Context
         // Override the SaveChangesAsync method to handle any custom logic before saving changes.
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var entries = ChangeTracker.Entries<BaseDomainModel>().Where(q => q.State == EntityState.Added
-            || q.State == EntityState.Modified);
+            var entries = ChangeTracker.Entries<BaseDomainModel>()
+                .Where(q => q.State is EntityState.Added or EntityState.Modified);
 
             foreach (var entry in entries)
             {
@@ -61,7 +61,7 @@ namespace EntityFrameworkCore.Data.Context
                     entry.Entity.CreatedAt = DateTime.UtcNow;
                     entry.Entity.CreatedBy = "New System"; // You can replace this with the actual user context if available
                 }
-                // Update the Version on every changes for  Concurrency check 
+                // Update the Version on every changes for Concurrency check 
                 entry.Entity.Version = Guid.NewGuid();
             }
             return base.SaveChangesAsync(cancellationToken);

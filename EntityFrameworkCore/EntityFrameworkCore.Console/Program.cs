@@ -1,10 +1,8 @@
 ﻿using EntityFrameworkCore.Data.Context;
 using EntityFrameworkCore.Domain.Models;
-using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using System.Transactions;
 
 // Note Just press INSERT Key when new data overrides existing ////////////////////////////
 //FootbalLeagueDbContext : C:\Users\HP\AppData\Roaming\FootballLeague_EfCore.db
@@ -21,7 +19,7 @@ optionsBuilder.UseSqlite($"Data Source={DbPath}");
     //.EnableSensitiveDataLogging()  // Enables Verbose Logging of SQL Queries and all levels
     //.EnableDetailedErrors(); // Enables Detailed Errors for better debugging
 
-using var context = new FootballLeagueDbContext(optionsBuilder.Options);
+await using var context = new FootballLeagueDbContext(optionsBuilder.Options);
 
 // Fetch All Teams data from the DB
 await GetAllData();
@@ -84,10 +82,10 @@ RawSqlDataFetchMethods();
 // Retrive the data from the temporal table to see the history of corresponding table.
 HowToAccessTemporalTable();
 
-// This is to handel the roolback if someth
+// This is to handel the roolback if something went wrong in the transaction
 TransactionManager();
 
-//Optimistice concurrency
+//Optimistice concurrency checks
 await OptimisticConcurrencyChecks();
 
 // Just make a flag or set perticular field as deleted mark
@@ -127,7 +125,7 @@ async Task OptimisticConcurrencyChecks()
 
         try
         {
-            await context.SaveChangesAsync(); // At the same timr if anyone is changing the record from the DB then exceptio raised.
+            await context.SaveChangesAsync(); // At the same time if anyone is changing the record from the DB then exception raised.
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -244,8 +242,10 @@ void HowToAccessTemporalTable()
 {
     using var sqlServerContext = new FootballTemporalDbContext();
 
+    //TemporalAll -> Temporal tables do not automatically return historical data. You must explicitly use temporal query methods like TemporalAll, TemporalAsOf, etc., otherwise EF Core behaves like a normal table query and returns only current data.
+    
     var teamHistory = sqlServerContext.Teams
-        .TemporalAll()
+        .TemporalAll()   // Get all the data from the existing Teams + TeamsHistory Temporal table
         .Where(q => q.Id == 1)
         .Select(team => new
         {
@@ -274,7 +274,7 @@ async Task GetTeamAndViewData()
 
 async Task EagerLoading()
 {
-    // When Needed then only Eager Load the data from the table
+    // You tell EF Core to fetch the main entity and all the specific related entities you want in a single query upfront.                            
     var leagues = await context.Leagues
         .Include(x=> x.Teams)           // Load Team
         .ThenInclude(x=> x.Coach)       // Load Coach
@@ -284,24 +284,34 @@ async Task EagerLoading()
 
     foreach (var league in leagues)
     {
-        Console.WriteLine($"###### Leauge : # {league.Name} #");
+        Console.WriteLine($"###### League : # {league.Name} #");
         var cnt = 1;
+        
         foreach (var team in league.Teams)
         {
             Console.WriteLine($"{cnt++}. Team Name : {team.Name}. |  Coach Name : {team.Coach.Name}.");
         }
-        Console.WriteLine(Environment.NewLine );
+        Console.WriteLine(Environment.NewLine);
     }
 }
 
 async Task ExplicitlyLoading()
 {
+    // You fetch the main entity first. Later in your code, if you realize you need the related data, you manually ask the DbContext to make a second trip to the database to get it.
     var leagues = await context.Leagues.FindAsync(4);
 
     if (leagues == null) return;
 
+    // Used for the Collection Loading
     await context.Entry(leagues)
-        .Collection(x=> x.Teams)      // Load Team here we can load only 1 level of data.
+        .Collection(x=> x.Teams)      // Load Team collection here, we can load only 1 level of data.
+        .LoadAsync();
+    
+    // Used for the Reference/object Loading
+    var firstTeam = await context.Teams.FirstOrDefaultAsync();
+    
+    await context.Entry(firstTeam)
+        .Reference(x => x.Coach)    // Load Coach reference here, we can load only 1 level of data.
         .LoadAsync();
 
     Console.WriteLine("################## Explicitly Loading ##################");
@@ -317,6 +327,10 @@ async Task ExplicitlyLoading()
 
 async Task LazyLoading()
 {
+    /*
+        You fetch the main entity. The related data is not loaded. However, the exact millisecond you try to access the related property in your code,
+        EF Core automatically pauses your code, makes a trip to the database in the background, fetches the data, and then lets your code continue.
+    */
     var league = await context.Leagues.FindAsync(4);
 
     if (league == null) return;
@@ -336,12 +350,12 @@ async Task DeleteData()
     PrintCoachesData(await context.Coaches.ToListAsync());
 
     Console.WriteLine("Do you want to Delete the above inserted data?");
-    var yes = Console.ReadLine() ?? "N";
+    var yes = Convert.ToString(Console.ReadLine()) ?? "N";
 
-    if (yes.ToString().Equals("y", StringComparison.OrdinalIgnoreCase))
+    if (yes.Equals("y", StringComparison.OrdinalIgnoreCase))
     {
         Console.WriteLine("################## Insert a Coach Id to be Delete : ");
-        int id = Convert.ToInt32(Console.ReadLine());
+        var id = Convert.ToInt32(Console.ReadLine());
 
         var coach = await context.Coaches
             // .AsNoTracking()  <- if its marked a no tracker then we cannot save the changes in the DB
@@ -353,6 +367,8 @@ async Task DeleteData()
 
             // Here we have to change the Entry State to make in modified entry state
             //context.Entry(coach).State = EntityState.Deleted;
+            
+            // This line is also make state as EntityState.Deleted like above line.
             context.Coaches.Remove(coach);
             await context.SaveChangesAsync();
         }
@@ -368,21 +384,21 @@ async Task UpdateData()
     PrintCoachesData(await context.Coaches.ToListAsync());
 
     Console.WriteLine("Do you want to update the above inserted data?");
-    var yes = Console.ReadLine();
+    var yes = Convert.ToString(Console.ReadLine());
 
-    if (yes.ToString().Equals("y", StringComparison.OrdinalIgnoreCase))
+    if (yes != null && yes.Equals("y", StringComparison.OrdinalIgnoreCase))
     {
         Console.WriteLine("################## Insert a Coach Id to update : ");
-        int id = Convert.ToInt32(Console.ReadLine());
+        var id = Convert.ToInt32(Console.ReadLine());
 
         var coach = await context.Coaches
-            // .AsNoTracking()  <- if its marked a no tracker then we cannot save the changes in the DB
+            // .AsNoTracking()  <- if its marked a no tracker then we cannot save the changes in the DB. we have to intensionally make the EntityState as Modified. 
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (coach != null)
         {
             Console.WriteLine("################## Enter new Coach name : ");
-            var data = Console.ReadLine();
+            var data = Convert.ToString(Console.ReadLine());
             // Update data
             coach.Name = data;
             coach.CreatedAt = DateTime.Now;
@@ -402,13 +418,13 @@ async Task UpdateData()
 async Task AddData()
 {
     Console.WriteLine("########################   You want insert a new coaches? Y/N");
-    var yes = Console.ReadLine();
+    var yes = Convert.ToString(Console.ReadLine());
     var newCoaches = new List<Coach>();
 
-    while (yes.ToString().Equals("y", StringComparison.OrdinalIgnoreCase))
+    while (yes != null && yes.Equals("y", StringComparison.OrdinalIgnoreCase))
     {
-        Console.WriteLine("######################## Enter a coache name :");
-        var insertedData = Console.ReadLine();
+        Console.WriteLine("######################## Enter a coach name :");
+        var insertedData = Convert.ToString(Console.ReadLine());
 
         var newCoach = new Coach
         {
@@ -418,10 +434,10 @@ async Task AddData()
 
         newCoaches.Add(newCoach);
 
-        Console.WriteLine("Do you want insert a new coache again? Y/N");
+        Console.WriteLine("Do you want insert a new coach again? Y/N");
         yes = Console.ReadLine();
 
-        if (yes.ToString().Equals("n", StringComparison.OrdinalIgnoreCase))
+        if (yes != null && yes.Equals("n", StringComparison.OrdinalIgnoreCase))
         {
             // Bulk insert the data
             await context.AddRangeAsync(newCoaches);
@@ -588,7 +604,7 @@ async Task GetTeamByFilter()
 
 async Task GetAllTeamsQuerySyntax()
 {
-    var input = "CSK";
+    const string input = "CSK";
 
     var teamsUsingLinqSyntax = await (from team in context.Teams
                        where EF.Functions.Like(team.Name, $"%{input}%")
@@ -662,7 +678,7 @@ async Task GetAllData()
     }
     catch (Exception ex)
     {
-        Console.WriteLine(ex.Data.ToString() + Environment.NewLine + ex.Message);
+        Console.WriteLine(ex.Data + Environment.NewLine + ex.Message);
     }
 }
 
