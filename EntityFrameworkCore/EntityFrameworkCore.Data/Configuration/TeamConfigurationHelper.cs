@@ -8,9 +8,17 @@ namespace EntityFrameworkCore.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<Team> builder)
         {
-            builder.HasIndex(x=> x.Name).IsUnique();
+            builder
+                .HasIndex(x=> x.Name)
+                .IsUnique();
 
+    /*
+        A Temporal Table is a system-versioned table in SQL Server that automatically maintains the full history of data changes. It stores
+        previous versions of rows in a history table with time period columns, allowing us to query data as it existed at any point in time.
+        It is mainly used for auditing, data recovery, and tracking changes.
+     */
             builder.ToTable("Teams", b => b.IsTemporal()); // This will create a temporal table for Teams, used for audits
+                                                           // & add 2 columns in the table ValueFrom & ValueTo + also new TeamsHistory table.
 
             builder.HasMany(x=> x.HomeMatches)      // Team has many matches
                 .WithOne(y=> y.HomeTeam)            // With home team
@@ -24,13 +32,13 @@ namespace EntityFrameworkCore.Data.Configuration
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // This is for Sql Server
-            //builder.Property(p => p.Version)
-            //    .IsRowVersion();
+            //Both are used to handle concurrent updates (multiple users updating the same record at the same time) in Entity Framework Core.
 
-            // This is using Concurrency Token
-            builder.Property(p => p.Version)
-                .IsConcurrencyToken();
+            // This is for Sql Server
+            //builder.Property(p => p.Version).IsRowVersion();
+
+            // This is for SqlLite using Concurrency Token
+            builder.Property(p => p.Version).IsConcurrencyToken();
 
             builder.HasData(
                 new Team

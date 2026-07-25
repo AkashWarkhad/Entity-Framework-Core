@@ -74,10 +74,10 @@ namespace EntityFrameworkCore.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Team>> PostTeam(Team team)
         {
-            _context.Teams.Add(team);
-            await _context.SaveChangesAsync();
+           await _context.Teams.AddAsync(team);
+           await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTeam", new { id = team.Id }, team);
+           return CreatedAtAction("GetTeam", new { id = team.Id }, team);
         }
 
         // DELETE: api/Teams/5
@@ -85,15 +85,14 @@ namespace EntityFrameworkCore.Api.Controllers
         public async Task<IActionResult> DeleteTeam(int id)
         {
             var team = await _context.Teams.FindAsync(id);
-            if (team == null)
+            if (team != null)
             {
-                return NotFound();
+                _context.Teams.Remove(team);
+                await _context.SaveChangesAsync();
+                return Ok($"Team with Id {id} deleted successfully");
             }
-
-            _context.Teams.Remove(team);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            
+            return NotFound();
         }
 
         private bool TeamExists(int id)
